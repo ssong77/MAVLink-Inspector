@@ -1,0 +1,19 @@
+```
+# Build directories
+build*/
+cmake-build-*/
+
+# Qt
+*.qmlc
+*.jsc
+.qmake.stash
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.user.*
+
+# OS
+.DS_Store
+Thumbs.db
