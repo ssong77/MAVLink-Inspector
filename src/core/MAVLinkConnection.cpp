@@ -3,7 +3,8 @@
 #include <QDebug>
 
 // MAVLink 헤더
-#include "common/mavlink.h"
+#include "mavlink.h"
+#include "MAVLinkMessageInfo.h"
 
 MAVLinkConnection::MAVLinkConnection(QObject *parent)
     : QObject(parent)
@@ -74,23 +75,22 @@ void MAVLinkConnection::onReadyRead()
         for (int i = 0; i < datagram.size(); i++) {
             uint8_t c = datagram[i];
             
-            if (mavlink_parse_char(MAVLINK_COMM_0, c, &msg, &status)) {
-                // 메시지 파싱 성공
-                m_messageCount++;
-                emit messageCountChanged();
-                
-                QString timestamp = QDateTime::currentDateTime()
-                    .toString("hh:mm:ss.zzz");
-                
-                QString type = QString("MSG #%1").arg(msg.msgid);
-                
-                QString content = QString("sysid=%1 compid=%2 len=%3")
-                    .arg(msg.sysid)
-                    .arg(msg.compid)
-                    .arg(msg.len);
-                
-                emit messageReceived(timestamp, type, content);
-            }
+
+        if (mavlink_parse_char(MAVLINK_COMM_0, c, &msg, &status)) {
+            m_messageCount++;
+            emit messageCountChanged();
+            
+            QString timestamp = QDateTime::currentDateTime()
+                .toString("hh:mm:ss.zzz");
+            
+            // 메시지 이름 가져오기
+            QString type = MAVLinkMessageInfo::getMessageName(msg.msgid);
+            
+            // 상세 정보 포맷팅
+            QString content = MAVLinkMessageInfo::formatMessageContent(msg);
+            
+            emit messageReceived(timestamp, type, content);
         }
     }
+}
 }

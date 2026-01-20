@@ -7,11 +7,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Qt 정책 설정 추가
-if(POLICY CMP0100)
-    cmake_policy(SET CMP0100 NEW)
-endif()
-
 find_package(Qt6 6.5 REQUIRED COMPONENTS
     Core
     Quick
@@ -22,25 +17,23 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS
 set(SOURCES
     src/main.cpp
     src/core/MAVLinkConnection.cpp
+    src/core/MAVLinkMessageInfo.cpp
 )
 
 set(HEADERS
     include/MAVLinkConnection.h
+    include/MAVLinkMessageInfo.h
 )
 
-# 실행 파일 생성
-qt_add_executable(${PROJECT_NAME}
+set(RESOURCES
+    resources/resources.qrc
+)
+
+# 단순하게 실행 파일 생성
+add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${HEADERS}
-)
-
-# QML 모듈 추가 - RESOURCE_PREFIX 명시적으로 설정
-qt_add_qml_module(${PROJECT_NAME}
-    URI MAVLinkInspector
-    VERSION 1.0
-    RESOURCE_PREFIX /
-    QML_FILES
-        resources/qml/Main.qml
+    ${RESOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -53,10 +46,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/external/mavlink
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/mavlink/common
 )
 
-if(WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        WIN32_EXECUTABLE TRUE
-    )
-endif()
+# if(WIN32)
+#     set_target_properties(${PROJECT_NAME} PROPERTIES
+#         WIN32_EXECUTABLE TRUE
+#     )
+# endif()
