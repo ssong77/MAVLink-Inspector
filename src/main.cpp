@@ -1,8 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QFile>
 #include <QTextStream>
 #include <QDateTime>
+#include "MAVLinkConnection.h"
+#include "MessageFilterModel.h"
 
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -32,8 +35,22 @@ int main(int argc, char *argv[])
     
     QGuiApplication app(argc, argv);
     
+    app.setOrganizationName("MAVLinkInspector");
+    app.setApplicationName("MAVLink Inspector");
+    app.setApplicationVersion("0.1.0");
+
+    qDebug() << "Creating objects...";
+    
+    // 객체 생성
+    MAVLinkConnection mavlink;
+    MessageFilterModel filter;
+
     qDebug() << "Creating QML engine...";
     QQmlApplicationEngine engine;
+    
+    // QML에 객체 등록 (load 전에 해야 함!)
+    engine.rootContext()->setContextProperty("mavlink", &mavlink);
+    engine.rootContext()->setContextProperty("messageFilter", &filter);
     
     qDebug() << "Loading QML...";
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
